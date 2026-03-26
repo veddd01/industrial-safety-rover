@@ -51,15 +51,17 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        /* Linea specific colors */
-        "status-bar": {
-          DEFAULT: "hsl(var(--status-bar))",
-          foreground: "hsl(var(--status-bar-foreground))",
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
-        "nav": {
-          DEFAULT: "hsl(var(--nav-background))",
-          foreground: "hsl(var(--nav-foreground))",
-          hover: "hsl(var(--nav-hover))",
+        safe: {
+          DEFAULT: "hsl(var(--safe))",
+          foreground: "hsl(var(--safe-foreground))",
+        },
+        danger: {
+          DEFAULT: "hsl(var(--danger))",
+          foreground: "hsl(var(--danger-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
