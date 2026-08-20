@@ -1,73 +1,175 @@
-# Welcome to your Lovable project
+# Industrial Safety Rover Dashboard
 
-## Project info
+A web dashboard for an **Industrial Safety Rover** designed for pre-entry hazard assessment in confined industrial spaces such as gas chambers, refineries, tanks, and enclosed chambers.
 
-**URL**: https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875
+The project is focused on giving operators a clear view of environmental hazards before human entry, combining gas sensing, risk classification, rover position mapping, live video, thermal imaging, and hazard-responsive movement.
 
-## How can I edit this code?
+> **Project status:** Dashboard / prototype stage. Hardware integration and autonomous rover functionality are planned components of the overall system.
 
-There are several ways of editing your application.
+## 🎯 Problem
 
-**Use Lovable**
+Manual inspection and single-sensor approaches can expose personnel to hazardous environments and provide limited situational awareness. The goal of this system is to use a low-cost mobile rover to detect hazardous gases and environmental conditions, map risk areas, and provide operators with a live dashboard.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875) and start prompting.
+## ✨ Planned Capabilities
 
-Changes made via Lovable will be committed automatically to this repo.
+- Real-time combustible gas, LPG, and CO monitoring
+- Temperature and humidity monitoring
+- Safe / Caution / Danger risk classification
+- Weighted risk-scoring model for combining sensor readings
+- Color-coded gas and hazard intensity mapping
+- Rover position tracking using wheel encoders
+- Automatic movement behavior based on risk level
+  - **Safe:** normal movement
+  - **Caution:** reduced speed and increased monitoring
+  - **Danger:** stop, reverse, and trigger alerts
+- Live ESP32-CAM video feed
+- MLX90640 thermal imaging
+- Buzzer and RGB/LED hazard alerts
+- Operator dashboard for live sensor and rover status
 
-**Use your preferred IDE**
+## 🏗️ System Architecture
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The proposed system uses a two-controller design:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```text
+                  ┌─────────────────────────┐
+                  │      Web Dashboard      │
+                  │ Sensors • Risk • Map    │
+                  │ Video • Thermal • Alerts│
+                  └────────────┬────────────┘
+                               │ Wi-Fi
+                 ┌─────────────┴─────────────┐
+                 │                           │
+        ┌────────▼────────┐       ┌────────▼────────┐
+        │   ESP32 Main    │       │   ESP32-CAM      │
+        │ Sensor + Motion │       │   Live Video     │
+        │ Risk + Mapping  │       │                  │
+        └────────┬────────┘       └──────────────────┘
+                 │
+       ┌─────────┼──────────────────────┐
+       │         │          │            │
+    Gas sensors  │       Encoders    Motor driver
+       │         │          │            │
+     MQ-2/MQ-5  BME688     X/Y          4WD Rover
+     MQ-7/DHT22  MLX90640  position
+```
 
-Follow these steps:
+The main ESP32 is intended to handle sensor polling, motor control, risk scoring, position tracking, and the Wi-Fi dashboard interface. The ESP32-CAM is kept separate so video streaming does not interfere with sensor processing.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🧰 Hardware Plan
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+| Component | Purpose |
+|---|---|
+| ESP32 DevKit | Main controller, sensor processing, Wi-Fi and motion logic |
+| ESP32-CAM | Live video streaming |
+| MQ-2 | Combustible gas / smoke detection |
+| MQ-5 | LPG / natural gas detection |
+| MQ-7 | Carbon monoxide detection |
+| DHT22 | Temperature and humidity |
+| BME688 | VOC / environmental sensing |
+| MLX90640 | Thermal imaging |
+| Wheel encoders | Rover odometry and mapping |
+| Motor driver | Motor speed and direction control |
+| 4WD chassis + BO motors | Rover mobility |
+| Buzzer + RGB/LED | Local hazard alerts |
 
-# Step 3: Install the necessary dependencies.
-npm i
+The target hardware budget is **₹20,000**, with an estimated base cost of approximately **₹10,740**, leaving contingency for shipping, spares, battery improvements, or future upgrades.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+## 🧠 Risk & Mapping Logic
+
+Sensor readings are intended to be calibrated and filtered before risk classification. The planned pipeline is:
+
+1. Calibrate gas sensors and establish clean-air baselines.
+2. Smooth noisy readings using a moving-average filter.
+3. Normalize readings against relevant hazard thresholds.
+4. Combine readings using a weighted risk score.
+5. Classify the environment as **Safe**, **Caution**, or **Danger**.
+6. Associate readings with rover position and timestamp.
+7. Render the collected data as a color-coded 2D hazard map.
+8. Adjust rover movement according to the current risk level.
+
+## 💻 Software Stack
+
+### Dashboard
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- Recharts
+
+### Rover / Embedded System
+
+- ESP32
+- ESP32-CAM
+- Sensor modules over analog / I2C interfaces
+- Wheel-encoder based dead-reckoning
+
+The current repository is a Vite + React + TypeScript frontend project with Tailwind CSS and shadcn/ui dependencies.
+
+## 🚀 Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Build for production:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+Run linting:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm run lint
+```
 
-## What technologies are used for this project?
+## 📊 Development Roadmap
 
-This project is built with:
+- [ ] Component procurement and individual sensor bring-up
+- [ ] Rover chassis and motor control
+- [ ] Gas/environmental sensor integration
+- [ ] Sensor calibration and filtering
+- [ ] Risk scoring implementation
+- [ ] Position tracking and gas mapping
+- [ ] Autonomous hazard-responsive movement
+- [ ] ESP32-CAM video integration
+- [ ] MLX90640 thermal integration
+- [ ] Live dashboard integration with rover telemetry
+- [ ] End-to-end testing in a controlled enclosed-space mock environment
+- [ ] Final documentation, cost analysis, and demonstration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## ⚠️ Important Limitations
 
-## How can I deploy this project?
+- MQ-series gas sensors require proper calibration and warm-up; raw ADC values should not be treated as universal gas concentrations.
+- Wheel-encoder dead-reckoning will accumulate positional drift over longer runs.
+- Wi-Fi can be unreliable inside metal tanks, pipelines, and other enclosed industrial structures.
+- Thresholds and risk classifications must be validated against appropriate safety standards and real sensor calibration before any real hazardous-environment deployment.
+- This project should be treated as a prototype and **not as a replacement for certified industrial safety equipment or professional gas detection systems**.
 
-Simply open [Lovable](https://lovable.dev/projects/a8e59680-e4fc-4735-a797-36af2f7e2875) and click on Share -> Publish.
+## 💰 Budget
 
-## Can I connect a custom domain to my Lovable project?
+**Target:** ₹20,000 maximum
 
-Yes, you can!
+**Estimated base hardware cost:** ~₹10,740
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The remaining budget is intended for shipping/import costs, spare components, battery improvements, and optional future processing hardware.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📁 Project Context
+
+This dashboard is part of an Industrial Safety Rover project intended for **pre-entry hazard assessment**. The broader project plan covers the hardware architecture, sensing, risk scoring, autonomous behavior, mapping, thermal imaging, video streaming, and a 10-week development roadmap.
+
+## 📄 License
+
+Add the project's license here before public release.
