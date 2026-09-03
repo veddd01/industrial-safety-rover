@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "industrialSafety": {
+      ".read": false,
+      ".write": false,
+      "telemetry": {
+        "$roverId": {
+          ".read": false,
+          ".write": false
+        }
+      },
+      "rovers": {
+        "$roverId": {
+          ".read": false,
+          ".write": false
+        }
+      },
+      "alerts": {
+        ".read": false,
+        ".write": false
+      }
+    }
+  }
+}
