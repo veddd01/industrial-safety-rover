@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getTelemetryHistory, subscribeToTelemetry } from '@/lib/telemetry';
 import type { RiskLevel, RoverTelemetry } from '@/types/telemetry';
 
@@ -95,6 +95,7 @@ export function useRoverData() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [selectedGas, setSelectedGas] = useState('CO');
   const [lastReceivedAt, setLastReceivedAt] = useState(0);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
     let active = true;
@@ -131,9 +132,7 @@ export function useRoverData() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLastReceivedAt((value) => value);
-    }, 1000);
+    const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -144,27 +143,16 @@ export function useRoverData() {
       temperature: latest?.sensors.temperature ?? 0,
       humidity: latest?.sensors.humidity ?? 0,
       batteryLevel: latest?.battery ?? 0,
-      isOnline: lastReceivedAt > 0 && Date.now() - lastReceivedAt < OFFLINE_AFTER_MS,
+      isOnline: lastReceivedAt > 0 && now - lastReceivedAt < OFFLINE_AFTER_MS,
       fps: latest?.camera.fps ?? 0,
       thermalMax: latest?.thermal.max ?? 0,
       thermalMin: latest?.thermal.min ?? 0,
     };
-  }, [latest, lastReceivedAt]);
+  }, [latest, lastReceivedAt, now]);
 
   const gasMap = useMemo(() => buildGasMap(history, selectedGas), [history, selectedGas]);
   const thermalMap = latest?.thermal.frame ?? [];
   const riskLevel = (latest?.risk.level ?? 'safe') as RiskLevel;
-
-  const refresh = useCallback(async () => {
-    const items = await getTelemetryHistory(ROVER_ID, 200);
-    const sorted = [...items].sort((a, b) => a.timestamp - b.timestamp);
-    setHistory(sorted);
-    const last = sorted.at(-1);
-    if (last) {
-      setLatest(last);
-      setLastReceivedAt(Date.now());
-    }
-  }, []);
 
   return {
     sensorData,
@@ -176,6 +164,5 @@ export function useRoverData() {
     riskLevel,
     roverId: ROVER_ID,
     lastTelemetry: latest,
-    refresh,
   };
 }
