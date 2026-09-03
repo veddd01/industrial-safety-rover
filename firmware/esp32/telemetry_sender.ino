@@ -8,6 +8,7 @@
 
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <time.h>
 
 const char* WIFI_SSID = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
@@ -50,6 +51,13 @@ String jsonNumber(float value) {
   return String(value, 3);
 }
 
+unsigned long long unixTimeMs() {
+  time_t now;
+  time(&now);
+  if (now < 1000000000) return 0;
+  return static_cast<unsigned long long>(now) * 1000ULL;
+}
+
 String buildTelemetryJson() {
   GasReading gases[] = {
     {"CO", readCoPpm(), readMq7Raw(), "ppm", 50.0f},
@@ -60,7 +68,7 @@ String buildTelemetryJson() {
 
   String payload = "{";
   payload += "\"roverId\":\"" + String(ROVER_ID) + "\",";
-  payload += "\"timestamp\":" + String((unsigned long long)millis()) + ",";
+  payload += "\"timestamp\":" + String(unixTimeMs()) + ",";
   payload += "\"gases\":[";
 
   for (size_t i = 0; i < 4; ++i) {
@@ -94,6 +102,9 @@ void connectWiFi() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
+
+  // UTC is sufficient because timestamps are stored as Unix milliseconds.
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
 }
 
 void sendTelemetry() {
@@ -103,6 +114,7 @@ void sendTelemetry() {
 
   HTTPClient http;
   http.begin(TELEMETRY_URL);
+  http.setTimeout(3000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("x-rover-token", ROVER_TOKEN);
 
