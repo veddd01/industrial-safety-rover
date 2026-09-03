@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getTelemetryHistory, subscribeToTelemetry } from '@/lib/telemetry';
+import type { RiskLevel, RoverTelemetry } from '@/types/telemetry';
 
 export interface GasReading {
   name: string;
@@ -31,115 +33,149 @@ export interface GasMapPoint {
   value: number;
 }
 
-const randomBetween = (min: number, max: number) =>
-  Math.round((Math.random() * (max - min) + min) * 100) / 100;
+const ROVER_ID = import.meta.env.VITE_ROVER_ID || 'rover-01';
+const OFFLINE_AFTER_MS = 8_000;
+const DEFAULT_GASES: GasReading[] = [
+  { name: 'CO', value: 0, unit: 'ppm', threshold: 50 },
+  { name: 'CH₄', value: 0, unit: '%LEL', threshold: 5 },
+  { name: 'H₂S', value: 0, unit: 'ppm', threshold: 10 },
+  { name: 'O₂', value: 0, unit: '%', threshold: 19.5 },
+];
+
+const toGasReadings = (telemetry?: RoverTelemetry): GasReading[] => {
+  if (!telemetry?.sensors?.gases?.length) return DEFAULT_GASES;
+
+  return telemetry.sensors.gases
+    .filter((gas) => gas.value !== null)
+    .map((gas) => ({
+      name: gas.name,
+      value: gas.value ?? 0,
+      unit: gas.unit,
+      threshold: gas.threshold ?? 0,
+    }));
+};
+
+const buildGasMap = (history: RoverTelemetry[], selectedGas: string): GasMapPoint[] => {
+  const valid = history.filter(
+    (item) => item.position.x !== null && item.position.y !== null && item.sensors.gases.length,
+  );
+  if (!valid.length) return [];
+
+  const values = valid.map((item) => {
+    const gas = item.sensors.gases.find((entry) => entry.name === selectedGas);
+    return { item, value: gas?.value ?? 0, threshold: gas?.threshold ?? 1 };
+  });
+
+  const xs = values.map(({ item }) => item.position.x as number);
+  const ys = values.map(({ item }) => item.position.y as number);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const rangeX = Math.max(maxX - minX, 1);
+  const rangeY = Math.max(maxY - minY, 1);
+
+  return values.map(({ item, value, threshold }) => ({
+    x: ((item.position.x as number - minX) / rangeX) * 19,
+    y: ((item.position.y as number - minY) / rangeY) * 14,
+    value: Math.max(0, Math.min(100, threshold > 0 ? (value / threshold) * 100 : value)),
+  }));
+};
+
+const makeLog = (telemetry: RoverTelemetry): LogEntry => ({
+  id: `${telemetry.timestamp}-${telemetry.roverId}`,
+  timestamp: new Date(telemetry.timestamp),
+  type: telemetry.risk.level === 'danger' ? 'danger' : telemetry.risk.level === 'warning' ? 'warning' : 'info',
+  message: telemetry.risk.reason || 'Telemetry received',
+});
 
 export function useRoverData() {
-  const [sensorData, setSensorData] = useState<SensorData>({
-    gases: [
-      { name: 'CO', value: 12, unit: 'ppm', threshold: 50 },
-      { name: 'CH₄', value: 0.8, unit: '%LEL', threshold: 5 },
-      { name: 'H₂S', value: 3.2, unit: 'ppm', threshold: 10 },
-      { name: 'O₂', value: 20.8, unit: '%', threshold: 19.5 },
-    ],
-    temperature: 34.2,
-    humidity: 62,
-    batteryLevel: 78,
-    isOnline: true,
-    fps: 30,
-    thermalMax: 67.3,
-    thermalMin: 22.1,
-  });
-
-  const [logs, setLogs] = useState<LogEntry[]>([
-    { id: '1', timestamp: new Date(), type: 'info', message: 'System initialized successfully' },
-    { id: '2', timestamp: new Date(), type: 'info', message: 'Gas sensors calibrated' },
-    { id: '3', timestamp: new Date(), type: 'warning', message: 'CO level approaching threshold' },
-  ]);
-
-  const [gasMap, setGasMap] = useState<GasMapPoint[]>(() => {
-    const points: GasMapPoint[] = [];
-    for (let x = 0; x < 20; x++) {
-      for (let y = 0; y < 15; y++) {
-        const cx = 10, cy = 7;
-        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-        points.push({ x, y, value: Math.max(0, 100 - dist * 10 + Math.random() * 20) });
-      }
-    }
-    return points;
-  });
-
-  const [thermalMap, setThermalMap] = useState<number[][]>(() => {
-    const map: number[][] = [];
-    for (let y = 0; y < 12; y++) {
-      map[y] = [];
-      for (let x = 0; x < 16; x++) {
-        const hotspot1 = Math.exp(-((x - 4) ** 2 + (y - 3) ** 2) / 8) * 45;
-        const hotspot2 = Math.exp(-((x - 12) ** 2 + (y - 8) ** 2) / 12) * 35;
-        map[y][x] = 22 + hotspot1 + hotspot2 + Math.random() * 3;
-      }
-    }
-    return map;
-  });
-
+  const [history, setHistory] = useState<RoverTelemetry[]>([]);
+  const [latest, setLatest] = useState<RoverTelemetry | undefined>();
+  const [logs, setLogs] = useState<LogEntry[]>([]);
   const [selectedGas, setSelectedGas] = useState('CO');
+  const [lastReceivedAt, setLastReceivedAt] = useState(0);
 
-  const updateData = useCallback(() => {
-    setSensorData(prev => ({
-      ...prev,
-      gases: prev.gases.map(g => ({
-        ...g,
-        value: Math.max(0, g.value + randomBetween(-0.5, 0.5)),
-      })),
-      temperature: prev.temperature + randomBetween(-0.3, 0.3),
-      humidity: Math.min(100, Math.max(0, prev.humidity + randomBetween(-1, 1))),
-      batteryLevel: Math.max(0, prev.batteryLevel - randomBetween(0, 0.05)),
-      fps: Math.round(28 + Math.random() * 4),
-      thermalMax: prev.thermalMax + randomBetween(-0.5, 0.5),
-      thermalMin: prev.thermalMin + randomBetween(-0.2, 0.2),
-    }));
+  useEffect(() => {
+    let active = true;
+    getTelemetryHistory(ROVER_ID, 200)
+      .then((items) => {
+        if (!active) return;
+        const sorted = [...items].sort((a, b) => a.timestamp - b.timestamp);
+        setHistory(sorted);
+        const last = sorted.at(-1);
+        if (last) {
+          setLatest(last);
+          setLastReceivedAt(Date.now());
+          setLogs(sorted.slice(-20).reverse().map(makeLog));
+        }
+      })
+      .catch((error) => console.error('Unable to load telemetry history:', error));
 
-    setGasMap(prev =>
-      prev.map(p => ({ ...p, value: Math.max(0, Math.min(100, p.value + randomBetween(-3, 3))) }))
-    );
+    return () => {
+      active = false;
+    };
+  }, []);
 
-    setThermalMap(prev =>
-      prev.map(row => row.map(v => Math.max(20, v + randomBetween(-0.5, 0.5))))
+  useEffect(() => {
+    return subscribeToTelemetry(
+      ROVER_ID,
+      (telemetry) => {
+        setLatest(telemetry);
+        setLastReceivedAt(Date.now());
+        setHistory((previous) => [...previous.slice(-199), telemetry]);
+        setLogs((previous) => [makeLog(telemetry), ...previous].slice(0, 20));
+      },
+      (error) => console.warn('Telemetry stream error:', error),
     );
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(updateData, 1500);
-    return () => clearInterval(interval);
-  }, [updateData]);
-
-  // Randomly add logs
-  useEffect(() => {
-    const logMessages = [
-      { type: 'info' as const, message: 'Sensor data acquired' },
-      { type: 'info' as const, message: 'Navigation waypoint reached' },
-      { type: 'warning' as const, message: 'Temperature spike detected in sector 3' },
-      { type: 'warning' as const, message: 'Gas concentration rising in zone A' },
-      { type: 'danger' as const, message: 'H₂S level exceeded safe threshold!' },
-      { type: 'info' as const, message: 'Thermal scan complete' },
-    ];
     const interval = setInterval(() => {
-      const msg = logMessages[Math.floor(Math.random() * logMessages.length)];
-      setLogs(prev => [
-        { id: Date.now().toString(), timestamp: new Date(), ...msg },
-        ...prev.slice(0, 19),
-      ]);
-    }, 5000);
+      setLastReceivedAt((value) => value);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const riskLevel = (() => {
-    const hasExceeded = sensorData.gases.some(g => g.value > g.threshold);
-    const hasWarning = sensorData.gases.some(g => g.value > g.threshold * 0.7);
-    if (hasExceeded) return 'danger' as const;
-    if (hasWarning) return 'warning' as const;
-    return 'safe' as const;
-  })();
+  const sensorData = useMemo<SensorData>(() => {
+    const gases = toGasReadings(latest);
+    return {
+      gases,
+      temperature: latest?.sensors.temperature ?? 0,
+      humidity: latest?.sensors.humidity ?? 0,
+      batteryLevel: latest?.battery ?? 0,
+      isOnline: lastReceivedAt > 0 && Date.now() - lastReceivedAt < OFFLINE_AFTER_MS,
+      fps: latest?.camera.fps ?? 0,
+      thermalMax: latest?.thermal.max ?? 0,
+      thermalMin: latest?.thermal.min ?? 0,
+    };
+  }, [latest, lastReceivedAt]);
 
-  return { sensorData, logs, gasMap, thermalMap, selectedGas, setSelectedGas, riskLevel };
+  const gasMap = useMemo(() => buildGasMap(history, selectedGas), [history, selectedGas]);
+  const thermalMap = latest?.thermal.frame ?? [];
+  const riskLevel = (latest?.risk.level ?? 'safe') as RiskLevel;
+
+  const refresh = useCallback(async () => {
+    const items = await getTelemetryHistory(ROVER_ID, 200);
+    const sorted = [...items].sort((a, b) => a.timestamp - b.timestamp);
+    setHistory(sorted);
+    const last = sorted.at(-1);
+    if (last) {
+      setLatest(last);
+      setLastReceivedAt(Date.now());
+    }
+  }, []);
+
+  return {
+    sensorData,
+    logs,
+    gasMap,
+    thermalMap,
+    selectedGas,
+    setSelectedGas,
+    riskLevel,
+    roverId: ROVER_ID,
+    lastTelemetry: latest,
+    refresh,
+  };
 }
