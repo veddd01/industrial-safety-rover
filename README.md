@@ -1,10 +1,50 @@
 # Industrial Safety Rover Dashboard
 
+[![React](https://img.shields.io/badge/React-UI-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-Build-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Status](https://img.shields.io/badge/Status-Prototype-orange)](#)
+
 A web dashboard for an **Industrial Safety Rover** designed for pre-entry hazard assessment in confined industrial spaces such as gas chambers, refineries, tanks, and enclosed chambers.
 
 The project is focused on giving operators a clear view of environmental hazards before human entry, combining gas sensing, risk classification, rover position mapping, live video, thermal imaging, and hazard-responsive movement.
 
 > **Project status:** Dashboard / prototype stage. Hardware integration and autonomous rover functionality are planned components of the overall system.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Problem](#-problem)
+- [Planned Capabilities](#-planned-capabilities)
+- [System Architecture](#-system-architecture)
+- [Hardware Plan](#-hardware-plan)
+- [Risk & Mapping Logic](#-risk--mapping-logic)
+- [Software Stack](#-software-stack)
+- [Local Development](#-local-development)
+- [Development Roadmap](#-development-roadmap)
+- [Important Limitations](#-important-limitations)
+- [Budget](#-budget)
+- [Project Context](#-project-context)
+- [Contributing](#contributing)
+- [License](#-license)
+
+## Quick Start
+
+Install dependencies and start the Vite development server:
+
+```bash
+npm install
+npm run dev
+```
+
+For a production build and local preview:
+
+```bash
+npm run build
+npm run preview
+```
+
+The current repository is a frontend dashboard prototype. Hardware, telemetry, camera, and thermal integrations are tracked in the development roadmap below.
 
 ## 🎯 Problem
 
@@ -169,6 +209,15 @@ The remaining budget is intended for shipping/import costs, spare components, ba
 ## 📁 Project Context
 
 This dashboard is part of an Industrial Safety Rover project intended for **pre-entry hazard assessment**. The broader project plan covers the hardware architecture, sensing, risk scoring, autonomous behavior, mapping, thermal imaging, video streaming, and a 10-week development roadmap.
+
+## Contributing
+
+The project is currently a prototype. Contributions are welcome when they improve the dashboard, telemetry integration, hardware interface, testing, or documentation.
+
+1. Create a focused branch for the change.
+2. Keep hardware-dependent behavior isolated and documented.
+3. Run the available lint/build checks before submitting changes.
+4. Open a pull request with a concise description and validation details.
 
 ## 📄 License
 
