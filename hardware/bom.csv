@@ -1,0 +1,22 @@
+item,component,qty,specification,cost_inr,status
+1,ESP32 DevKit (WROOM-32),4,3.3 V 240 MHz dual-core Wi-Fi+BT,2380,3 working / 1 faulty
+2,ESP32-CAM (OV2640),2,5 V Wi-Fi camera,1320,1 working / 1 faulty
+3,Ra-02 LoRa (SX1278),2,433 MHz SPI,530,used
+4,MQ-2,1,smoke / LPG / combustible,110,used
+5,MQ-5,1,LPG / natural gas,125,used
+6,MQ-7,1,CO,125,not used
+7,MQ-9,1,CO / combustible,125,used
+8,MQ-135,1,air quality NH3 / benzene,155,used
+9,Flame sensor (LM393),1,IR digital,55,used
+10,DHT22,1,temp / humidity,135,used
+11,HC-SR04,2,2-400 cm,180,1 used
+12,MPU6050 (GY-521),1,6-axis I2C,145,used
+13,L298N,1,dual H-bridge,240,used
+14,Buck converter (LM2596/XL4015),2,set to 5 V,240,used
+15,DC geared motor 60 RPM,4,12 V,955,used
+16,Off-road wheel 70 mm,4,,480,used
+17,18650 Li-ion 2200 mAh,6,two 3S packs,1430,used
+18,3-cell holder,2,,160,used
+19,Perfboard / connectors / chassis hardware,1,2-tier acrylic chassis,1455,used
+20,Miscellaneous,1,contingency,2200,
+,TOTAL,,,12545,
