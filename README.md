@@ -11,7 +11,7 @@
 
 This repository contains the **React-based operator dashboard UI**. The wider rover system uses ESP32-based sensing and drive nodes, an ESP32-CAM for video, and a LoRa link to deliver sensor telemetry to a base station. The base station is designed to forward readings to the operator interface and log packets to Google Sheets.
 
-> **Important implementation note:** The dashboard in this repository is currently a frontend prototype. Its \`useRoverData\` hook generates simulated readings, gas-map points, thermal data, and activity logs. The camera panel is a visual placeholder. The React UI is **not yet connected to live rover telemetry or the ESP32-CAM stream**. Do not interpret the values shown by this dashboard as real sensor measurements.
+> **Important implementation note:** The dashboard in this repository is currently a frontend prototype. Its `useRoverData` hook generates simulated readings, gas-map points, thermal data, and activity logs. The camera panel is a visual placeholder. The React UI is **not yet connected to live rover telemetry or the ESP32-CAM stream**. Do not interpret the values shown by this dashboard as real sensor measurements.
 
 ---
 
@@ -64,17 +64,17 @@ The React application is organized as a single dashboard page with the following
 
 ### Demo data and risk indicator
 
-The current data provider is \`src/hooks/useRoverData.ts\`. It updates sample values on a timer and generates sample map and thermal data. The default gas labels shown by the UI are **CO, CH₄, H₂S, and O₂**; these are demonstration fields and should not be read as a one-to-one display of the rover's MQ sensor channels.
+The current data provider is `src/hooks/useRoverData.ts`. It updates sample values on a timer and generates sample map and thermal data. The default gas labels shown by the UI are **CO, CH₄, H₂S, and O₂**; these are demonstration fields and should not be read as a one-to-one display of the rover's MQ sensor channels.
 
 The dashboard's current Safe / Warning / Danger indicator is a simple UI demonstration based on configured thresholds. It is **not a calibrated risk model** and does not implement validated gas-specific alarm logic. In particular, oxygen-deficiency assessment requires lower-limit logic and cannot be represented safely by a generic “reading above threshold” comparison.
 
-The \`LIVE\`, \`Online\`, FPS, and battery indicators are also presentation values in the current prototype, not proof of an active device connection.
+The `LIVE`, `Online`, FPS, and battery indicators are also presentation values in the current prototype, not proof of an active device connection.
 
 ## System Architecture
 
 The rover system is divided into sensing, drive, video, and base-station functions.
 
-\`\`\`text
+```text
                          OPERATOR LAPTOP
                  React dashboard (this repository)
              Telemetry UI • Gas map • Video • Thermal UI
@@ -106,7 +106,7 @@ The rover system is divided into sensing, drive, video, and base-station functio
       | Gas/environment|
       | and motion data|
       +----------------+
-\`\`\`
+```
 
 ### Node responsibilities
 
@@ -117,7 +117,7 @@ The rover system is divided into sensing, drive, video, and base-station functio
 | Video node | ESP32-CAM (OV2640) | Provides an MJPEG camera stream over the rover Wi-Fi network |
 | Base station | ESP32 DevKit, Ra-02 LoRa module | Receives telemetry, adds RSSI/SNR information, outputs data over USB serial, and forwards readings to Google Apps Script |
 
-The hardware reference describes the rover access point at \`192.168.4.1\` and the ESP32-CAM stream at \`192.168.4.2:81\`. These are hardware-side reference endpoints; the React app in this repository does not currently consume them.
+The hardware reference describes the rover access point at `192.168.4.1` and the ESP32-CAM stream at `192.168.4.2:81`. These are hardware-side reference endpoints; the React app in this repository does not currently consume them.
 
 ## Hardware
 
@@ -162,10 +162,10 @@ The ENA and ENB jumpers on the L298N are removed so that the ESP32 can control m
 | Bandwidth | 125 kHz |
 | Coding rate | 4/5 |
 | Transmit power | 17 dBm |
-| Packet format | 60-byte binary packet; magic word \`0xABCD\` |
+| Packet format | 60-byte binary packet; magic word `0xABCD` |
 | Nominal telemetry interval | Approximately 3.1 seconds |
 
-**Regulatory check required:** the hardware notes flag the referenced \`433.000 MHz\` / \`17 dBm\` setting as outside the stated Indian licence-free operating conditions. Confirm the permitted frequency, bandwidth, and effective radiated power for the deployment location before operating the radio. Do not treat the reference settings as regulatory approval.
+**Regulatory check required:** the hardware notes flag the referenced `433.000 MHz` / `17 dBm` setting as outside the stated Indian licence-free operating conditions. Confirm the permitted frequency, bandwidth, and effective radiated power for the deployment location before operating the radio. Do not treat the reference settings as regulatory approval.
 
 ## Communication and Telemetry
 
@@ -181,7 +181,7 @@ The telemetry packet is documented with the following groups:
 | Header | Source, destination, packet ID, TTL |
 | Gas channels | MQ sensor readings (raw ADC counts) |
 | Environment | Flame state, distance (cm), temperature (°C), humidity (%) |
-| Motion | Accelerometer \`ax\`, \`ay\`, \`az\` (g) and gyroscope \`gx\`, \`gy\`, \`gz\` (°/s) |
+| Motion | Accelerometer `ax`, `ay`, `az` (g) and gyroscope `gx`, `gy`, `gz` (°/s) |
 | Link quality | RSSI (dBm) and SNR (dB), added by the base station |
 | Time | Dashboard/laptop time for local export; server time in Google Sheets |
 
@@ -189,7 +189,7 @@ Gas readings are raw sensor counts unless and until the sensing chain is calibra
 
 ### Planned React dashboard integration
 
-The hardware reference describes a separate HTML operator interface using browser serial access. That \`dashboard_live.html\` file is **not present in this React repository**. The React app still needs an integration layer to:
+The hardware reference describes a separate HTML operator interface using browser serial access. That `dashboard_live.html` file is **not present in this React repository**. The React app still needs an integration layer to:
 
 1. Read and parse telemetry from the base station over an appropriate serial or backend connection.
 2. Map the received sensor channels to the dashboard's data model.
@@ -204,10 +204,10 @@ The hardware project notes describe these firmware responsibilities. The firmwar
 
 | Firmware / file | Node | Responsibility |
 |---|---|---|
-| \`1.ino\` | Sensing ESP32 | Samples the sensors and transmits a \`SensorPacket\` over LoRa at approximately 3.1-second intervals |
-| \`2.ino\` | Base-station ESP32 | Receives and validates LoRa packets, adds RSSI/SNR, outputs serial data at 115200 baud, and posts readings to Google Apps Script |
-| \`CAR.ino\` | Drive ESP32 | Hosts the Wi-Fi AP and web controller, controls the motors, and stops the motors if a command is not received within 500 ms |
-| \`CameraWebServer\` | ESP32-CAM | Based on the Espressif camera web server example; the reference setup uses port 80 for camera endpoints and port 81 for the MJPEG stream |
+| `1.ino` | Sensing ESP32 | Samples the sensors and transmits a `SensorPacket` over LoRa at approximately 3.1-second intervals |
+| `2.ino` | Base-station ESP32 | Receives and validates LoRa packets, adds RSSI/SNR, outputs serial data at 115200 baud, and posts readings to Google Apps Script |
+| `CAR.ino` | Drive ESP32 | Hosts the Wi-Fi AP and web controller, controls the motors, and stops the motors if a command is not received within 500 ms |
+| `CameraWebServer` | ESP32-CAM | Based on the Espressif camera web server example; the reference setup uses port 80 for camera endpoints and port 81 for the MJPEG stream |
 
 ## Software Stack
 
@@ -247,40 +247,40 @@ Hardware flashing requires the Arduino IDE or PlatformIO with the ESP32 board pa
 
 Clone the repository:
 
-\`\`\`bash
+```bash
 git clone https://github.com/veddd01/industrial-safety-rover.git
 cd industrial-safety-rover
-\`\`\`
+```
 
 Install dependencies:
 
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 Start the Vite development server:
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
-The Vite configuration uses port \`8080\` by default. Open the local URL printed in the terminal.
+The Vite configuration uses port `8080` by default. Open the local URL printed in the terminal.
 
 ### Available scripts
 
 | Command | Description |
 |---|---|
-| \`npm run dev\` | Start the development server |
-| \`npm run build\` | Create a production build |
-| \`npm run build:dev\` | Create a development-mode build |
-| \`npm run preview\` | Preview the production build locally |
-| \`npm run lint\` | Run ESLint |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm run build:dev` | Create a development-mode build |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
 
 ## Repository Structure
 
 The main dashboard files are:
 
-\`\`\`text
+```text
 industrial-safety-rover/
 ├── public/
 ├── src/
@@ -301,9 +301,9 @@ industrial-safety-rover/
 ├── package.json
 ├── vite.config.ts
 └── README.md
-\`\`\`
+```
 
-\`src/hooks/useRoverData.ts\` is the current source of sample dashboard data. Replace or extend this hook with the real telemetry integration rather than embedding hardware communication logic directly into presentational components.
+`src/hooks/useRoverData.ts` is the current source of sample dashboard data. Replace or extend this hook with the real telemetry integration rather than embedding hardware communication logic directly into presentational components.
 
 ## Project Status
 
