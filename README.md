@@ -1,6 +1,6 @@
 # AAHARR — Advanced Autonomous Hazard and Reconnaissance Rover
 
-![AAHARR rover prototype](docs/images/rover_front.jpg)
+![AAHARR rover system illustration](docs/images/aaharr_hero.svg)
 
 ![ESP32](https://img.shields.io/badge/Controller-ESP32-E7352C?logo=espressif&logoColor=white)
 ![LoRa](https://img.shields.io/badge/Telemetry-SX1278%20%7C%20433.5%20MHz-0A7BBB)
