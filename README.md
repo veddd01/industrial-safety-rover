@@ -25,13 +25,21 @@ This repository contains the **React-based operator dashboard UI**. The wider ro
 - [Firmware Reference](#firmware-reference)
 - [Software Stack](#software-stack)
 - [Getting Started](#getting-started)
-- [Repository Structure](#repository-structure)
+- [Current Dashboard Structure](#current-dashboard-structure)
+- [Planned Full Repository Layout](#planned-full-repository-layout)
+- [Getting Started](#getting-started)
 - [Project Status](#project-status)
+- [Bench Results](#bench-results)
 - [Estimated Performance](#estimated-performance)
+- [Wiring and Schematics](#wiring-and-schematics)
+- [Documentation](#documentation)
 - [Known Limitations and Safety](#known-limitations-and-safety)
 - [Roadmap](#roadmap)
 - [Budget](#budget)
 - [Team](#team)
+- [Acknowledgements](#acknowledgements)
+- [License](#license)
+- [Citation](#citation)
 
 ---
 
@@ -202,12 +210,14 @@ The hardware reference describes a separate HTML operator interface using browse
 
 The hardware project notes describe these firmware responsibilities. The firmware sketches are not currently part of this React dashboard repository.
 
-| Firmware / file | Node | Responsibility |
+| Planned sketch path | Node | Responsibility |
 |---|---|---|
-| `1.ino` | Sensing ESP32 | Samples the sensors and transmits a `SensorPacket` over LoRa at approximately 3.1-second intervals |
-| `2.ino` | Base-station ESP32 | Receives and validates LoRa packets, adds RSSI/SNR, outputs serial data at 115200 baud, and posts readings to Google Apps Script |
-| `CAR.ino` | Drive ESP32 | Hosts the Wi-Fi AP and web controller, controls the motors, and stops the motors if a command is not received within 500 ms |
-| `CameraWebServer` | ESP32-CAM | Based on the Espressif camera web server example; the reference setup uses port 80 for camera endpoints and port 81 for the MJPEG stream |
+| `firmware/sensing_node/sensing_node.ino` | Sensing ESP32 | Samples the sensors and transmits a `SensorPacket` over LoRa at approximately 3.1-second intervals |
+| `firmware/base_station/base_station.ino` | Base-station ESP32 | Receives and validates LoRa packets, adds RSSI/SNR, outputs serial data at 115200 baud, and posts readings to Google Apps Script |
+| `firmware/drive_node/drive_node.ino` | Drive ESP32 | Hosts the Wi-Fi AP and web controller, controls the motors, and stops the motors if a command is not received within 500 ms |
+| `firmware/camera_node/camera_node.ino` | ESP32-CAM | Camera firmware based on Espressif's CameraWebServer example; keep its supporting source/header files and applicable license notices |
+
+**Repository status:** these firmware files are described by the project update plan but have **not yet been uploaded to this repository**. The names above are the target Arduino sketch names; no firmware compile is possible from the current checkout.
 
 ## Software Stack
 
@@ -276,9 +286,22 @@ The Vite configuration uses port `8080` by default. Open the local URL printed i
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
 
-## Repository Structure
+### Hardware bring-up (pending firmware upload)
 
-The main dashboard files are:
+The following workflow reflects the project update plan. It is **not executable from the current repository checkout**, because the firmware sketches, `secrets.example.h` files, Apps Script source, and `dashboard/dashboard_live.html` have not yet been committed.
+
+1. After the firmware folders are uploaded, copy each folder's `secrets.example.h` to `secrets.h` and enter the local credentials. Never commit `secrets.h`.
+2. Create the Google Sheet, add the verified Apps Script source from `apps-script/Code.gs`, deploy it as a web app, and keep its deployment URL in the base-station's ignored `secrets.h`.
+3. Flash the sensing, base-station, and drive sketches to their respective ESP32 DevKit boards. Flash the camera sketch to an AI-Thinker ESP32-CAM with the required PSRAM setting.
+4. Power the decks separately and allow the MQ sensors to warm up according to the relevant sensor datasheets and the project's validated procedure.
+5. Start the hotspot used by the base station for its internet uplink, then connect the base station to the operator laptop over USB.
+6. Join the laptop to the rover access point. When the hardware dashboard is added, open `dashboard/dashboard_live.html` in Chrome or Edge, connect the base-station serial port, start the camera feed, and then operate the rover.
+
+Do not use this sequence as a safety procedure for entry into a confined space. Validate wiring, voltage levels, radio configuration, and fail-safe behavior before testing.
+
+## Current Dashboard Structure
+
+The main dashboard files currently committed are:
 
 ```text
 industrial-safety-rover/
@@ -305,6 +328,52 @@ industrial-safety-rover/
 
 `src/hooks/useRoverData.ts` is the current source of sample dashboard data. Replace or extend this hook with the real telemetry integration rather than embedding hardware communication logic directly into presentational components.
 
+## Planned Full Repository Layout
+
+The intended repository layout for the complete capstone project is shown below. **Only the React/Vite dashboard portion is currently present on `main`; the hardware, firmware, Apps Script, data, and documentation folders are pending upload.** This is a target layout, not a claim that these files already exist.
+
+```text
+industrial-safety-rover/
+├── README.md
+├── CITATION.cff
+├── LICENSE                         # pending department/open-source approval
+├── .gitignore
+├── firmware/
+│   ├── sensing_node/
+│   │   ├── sensing_node.ino
+│   │   └── secrets.example.h
+│   ├── base_station/
+│   │   ├── base_station.ino
+│   │   └── secrets.example.h
+│   ├── drive_node/
+│   │   ├── drive_node.ino
+│   │   └── secrets.example.h
+│   └── camera_node/
+│       ├── camera_node.ino
+│       ├── app_httpd.cpp
+│       ├── camera_pins.h
+│       ├── camera_index.h
+│       └── secrets.example.h
+├── dashboard/
+│   ├── dashboard_live.html
+│   └── vendor/                      # local CSS and fonts for offline use
+├── apps-script/
+│   └── Code.gs
+├── hardware/
+│   ├── schematics/
+│   └── bom.csv
+├── data/
+│   └── bench_run_2026-11-03.csv
+├── docs/
+│   ├── AAHARR_Capstone_Report.pdf
+│   ├── images/
+│   └── test_plan.md
+├── src/                              # current React dashboard
+└── package.json
+```
+
+Arduino sketch filenames should match their containing folder names. Keep each actual `secrets.h` local and ignored; commit only a placeholder template after the firmware source is added and its required macros are verified.
+
 ## Project Status
 
 | Workstream | Status |
@@ -322,6 +391,23 @@ industrial-safety-rover/
 | End-to-end validation in a controlled test environment | Pending |
 
 The first bench-run notes dated **3 November 2026** report packet reception at the designed interval and identify issues requiring further work: weak RSSI (about −122 dBm), MQ-channel readings requiring investigation, and a flame-state polarity check.
+
+## Bench Results
+
+The project update notes for the **3 November 2026** bench run report:
+
+| Measure | Reported result |
+|---|---|
+| LoRa packets received | 9 of 9 packets in the recorded run |
+| Mean packet interval | 3.15 seconds |
+| RSSI | Approximately −118 to −122 dBm; antenna seating or setup was suspected |
+| MQ-135 channel | Clipped at 4095 counts in 3 packets |
+| MQ-9 channel | Read 0 in the recorded test |
+| Flame input | Flag polarity appeared inverted and requires verification |
+
+The raw export `data/bench_run_2026-11-03.csv` and dashboard capture `docs/images/dashboard_live.png` are referenced in the update plan but are **not present in the current repository**. Add the original, unmodified export and an authentic capture before turning these into downloadable result links.
+
+**Sensor-channel note:** the bench notes mention an MQ-135 channel, while the current hardware description lists MQ-2, MQ-5, MQ-7, and MQ-9 as the implemented array. Confirm whether MQ-135 was part of an earlier bench configuration before treating that reading as a result from the final sensor configuration.
 
 ## Estimated Performance
 
@@ -402,6 +488,22 @@ This mode switch is still in development and should not be considered an availab
 
 The hardware reference records a **proposal estimate of ₹12,545**. Actual procurement costs may vary. Keep the detailed cost-analysis document as the source of truth for component-level pricing.
 
+## Wiring and Schematics
+
+The update plan identifies the following schematic exports for upload:
+
+- `hardware/schematics/power_supply.png`
+- `hardware/schematics/sensing_node.png`
+- `hardware/schematics/lora_transmitter.png`
+
+The schematic source files and exports are not currently in this repository. Add the EasyEDA source project and matching PDF/PNG exports before linking them as verified wiring references.
+
+## Documentation
+
+The final capstone report is planned at `docs/AAHARR_Capstone_Report.pdf`. It has not yet been uploaded. Publish it only after all report placeholders and incomplete sections have been resolved.
+
+A test plan is also planned at `docs/test_plan.md`; its test cases should include a result field that is completed only after the corresponding test has been run.
+
 ## Team
 
 **Group 11 — Electrical & Instrumentation Engineering, 7th Semester**
@@ -409,6 +511,19 @@ The hardware reference records a **proposal estimate of ₹12,545**. Actual proc
 Ansh Gupta · Anushka Tiwari · Aryaveer Singh · Vedant
 
 **Supervisor:** Dr. Parag Nijhawan, Electrical & Instrumentation Engineering Department, Thapar Institute of Engineering and Technology, Patiala.
+
+## Acknowledgements
+
+- Dr. Parag Nijhawan and the Electrical & Instrumentation Engineering Department, Thapar Institute of Engineering and Technology.
+- Espressif Systems for the ESP32-CAM `CameraWebServer` example. Retain the upstream license and copyright notices with any reused or modified camera example source.
+
+## License
+
+No license has been added yet. Confirm that the department and all project contributors approve the intended open-source terms before adding a license file. Until then, do not assume that public visibility grants permission to reuse, modify, or redistribute the project.
+
+## Citation
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). GitHub can use this file to display citation information for the repository.
 
 ---
 
