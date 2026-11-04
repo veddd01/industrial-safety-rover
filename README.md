@@ -27,7 +27,6 @@ This repository contains the **React-based operator dashboard UI**. The wider ro
 - [Getting Started](#getting-started)
 - [Current Dashboard Structure](#current-dashboard-structure)
 - [Planned Full Repository Layout](#planned-full-repository-layout)
-- [Getting Started](#getting-started)
 - [Project Status](#project-status)
 - [Bench Results](#bench-results)
 - [Estimated Performance](#estimated-performance)
@@ -373,6 +372,27 @@ industrial-safety-rover/
 ```
 
 Arduino sketch filenames should match their containing folder names. Keep each actual `secrets.h` local and ignored; commit only a placeholder template after the firmware source is added and its required macros are verified.
+
+## Publication Readiness
+
+The update plan marks the following work as outstanding before treating the repository as a complete public project:
+
+| Task | Status |
+|---|---|
+| Ignore local `secrets.h` files and firmware build artifacts | Completed in `.gitignore` |
+| Add citation metadata | Completed in `CITATION.cff` |
+| Rotate rover AP and hotspot passwords; redeploy Apps Script if old credentials were exposed | Pending outside this repository |
+| Review all branches and Git history for previously committed credentials | Not verified |
+| Upload the renamed firmware sketches and camera support files | Pending |
+| Upload the live HTML dashboard and Apps Script source | Pending |
+| Upload schematics, BOM, raw bench CSV, photographs, and final report | Pending |
+| Complete firmware and live-dashboard fixes from the update plan | Pending |
+| Enable GitHub secret scanning and push protection | Pending repository settings review |
+| Add an open-source license after department and contributor approval | Pending approval |
+
+The repository's current default-branch files did not return matches for the searched credential indicators (password, `ROVER_AP_PASSWORD`, `APPS_SCRIPT_URL`, and Apps Script deployment URL patterns). This is **not a full secret audit**: current-file search does not establish that credentials are absent from every branch, commit, local copy, or Git history. Do not push firmware from an unreviewed working directory.
+
+Before uploading firmware, rotate any credentials that may have been committed or shared, then move the new values into ignored local `secrets.h` files. A history rewrite may be required if a credential was committed; coordinate it with collaborators and force-push only after confirming that the repository history can safely be rewritten.
 
 ## Project Status
 
