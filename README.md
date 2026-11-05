@@ -1,6 +1,6 @@
-# AAHARR — Advanced Autonomous Hazard and Reconnaissance Rover
+# AHARR — Atmospheric Hazard and Reconnaissance Rover
 
-![AAHARR rover system illustration](docs/images/aaharr_hero.svg)
+![AHARR rover system illustration](docs/images/aaharr_hero.svg)
 
 ![ESP32](https://img.shields.io/badge/Controller-ESP32-E7352C?logo=espressif&logoColor=white)
 ![LoRa](https://img.shields.io/badge/Telemetry-SX1278%20%7C%20433.5%20MHz-0A7BBB)
@@ -8,11 +8,11 @@
 ![Dashboard](https://img.shields.io/badge/Dashboard-HTML%20%2F%20Web%20Serial-0E7490)
 ![Status](https://img.shields.io/badge/Status-Student%20prototype-orange)
 
-**AAHARR (Advanced Autonomous Hazard and Reconnaissance Rover)** is a low-cost, four-wheel-drive, teleoperated rover designed to perform preliminary sensing in confined industrial spaces such as storage tanks, pipelines, and enclosed process chambers before personnel enter.
+**AHARR (Atmospheric Hazard and Reconnaissance Rover)** is a low-cost, four-wheel-drive, teleoperated rover designed to perform preliminary sensing in confined industrial spaces such as storage tanks, pipelines, and enclosed process chambers before personnel enter.
 
 The rover separates its functions across an ESP32 sensing node, ESP32 drive node, ESP32-CAM video node, and ESP32 LoRa base station. Sensor packets are sent over a 433 MHz SX1278 LoRa link. The base station emits a machine-readable serial packet for the operator dashboard and can forward the same packet to Google Sheets through Google Apps Script.
 
-> **Safety:** AAHARR is a student research prototype. It is not a certified gas detector, an explosion-protected robot, or a substitute for a confined-space entry program. Raw MQ ADC counts are not gas concentrations. Never use the rover or this dashboard to decide that a space is safe to enter.
+> **Safety:** AHARR is a student research prototype. It is not a certified gas detector, an explosion-protected robot, or a substitute for a confined-space entry program. Raw MQ ADC counts are not gas concentrations. Never use the rover or this dashboard to decide that a space is safe to enter.
 
 ## Table of contents
 
@@ -35,7 +35,7 @@ The rover separates its functions across an ESP32 sensing node, ESP32 drive node
 
 ## Project overview
 
-Confined industrial spaces can contain combustible or toxic gases and oxygen-deficient atmospheres that are not visible to personnel. AAHARR is intended to let an operator inspect a location remotely, observe live camera footage, and review sensor telemetry before deciding what further inspection or certified measurement is required.
+Confined industrial spaces can contain combustible or toxic gases and oxygen-deficient atmospheres that are not visible to personnel. AHARR is intended to let an operator inspect a location remotely, observe live camera footage, and review sensor telemetry before deciding what further inspection or certified measurement is required.
 
 The current prototype provides:
 
@@ -84,7 +84,7 @@ The prototype is **teleoperated**. Wheel odometry, autonomous navigation, valida
 | Sensing node | ESP32 DevKit + Ra-02 | Samples MQ-2 / MQ-5 / MQ-9 / MQ-135, DHT22, flame input, HC-SR04, and MPU6050; transmits a packed packet about every 3 seconds |
 | Drive node | ESP32 DevKit + L298N | Creates the `ESP32_CAR` Wi-Fi AP, serves movement endpoints, controls four geared motors, and stops when movement commands time out |
 | Camera node | AI-Thinker ESP32-CAM / OV2640 | Joins the rover AP at `192.168.4.2`, serves still capture on port 80, and MJPEG on port 81 |
-| Base station | ESP32 DevKit + Ra-02 | Receives LoRa packets, adds RSSI / SNR, emits `AAHARR:{...}` over USB serial, and posts telemetry to Google Apps Script when its uplink is available |
+| Base station | ESP32 DevKit + Ra-02 | Receives LoRa packets, adds RSSI / SNR, emits `AHARR:{...}` over USB serial, and posts telemetry to Google Apps Script when its uplink is available |
 
 The intended drive-node AP address is `192.168.4.1`. The camera firmware assigns `192.168.4.2` on that network.
 
@@ -112,7 +112,7 @@ These compressed photographs show the actual project assemblies supplied for doc
 
 | Drive assembly | Sensing deck | Gas sensor modules |
 |---|---|---|
-| ![AAHARR drive deck](docs/images/drive_deck.jpg) | ![AAHARR sensing deck](docs/images/sensing_deck.jpg) | ![AAHARR gas sensor modules](docs/images/mq_sensor_modules.jpg) |
+| ![AHARR drive deck](docs/images/drive_deck.jpg) | ![AHARR sensing deck](docs/images/sensing_deck.jpg) | ![AHARR gas sensor modules](docs/images/mq_sensor_modules.jpg) |
 
 ### Drive node pins
 
@@ -148,7 +148,7 @@ The Arduino sketches are arranged so each main `.ino` filename matches its conta
 | Sketch | Board | Main tasks |
 |---|---|---|
 | [`firmware/sensing_node/sensing_node.ino`](firmware/sensing_node/sensing_node.ino) | ESP32 sensing node | Reads sensors, applies a 3-sample moving average to MQ channels, estimates gyro zero-rate offsets at startup, and transmits LoRa packets |
-| [`firmware/base_station/base_station.ino`](firmware/base_station/base_station.ino) | ESP32 base station | Receives and validates packets, attaches RSSI / SNR, prints an `AAHARR:` JSON line over USB serial, and posts to Google Apps Script with a 2.5 s HTTP timeout and response-body status check |
+| [`firmware/base_station/base_station.ino`](firmware/base_station/base_station.ino) | ESP32 base station | Receives and validates packets, attaches RSSI / SNR, prints an `AHARR:` JSON line over USB serial, and posts to Google Apps Script with a 2.5 s HTTP timeout and response-body status check |
 | [`firmware/drive_node/drive_node.ino`](firmware/drive_node/drive_node.ino) | ESP32 drive node | Hosts the rover AP and HTTP movement endpoints; retains the 500 ms command timeout and restricts browser-origin control to the documented local dashboard origins |
 | [`firmware/camera_node/camera_node.ino`](firmware/camera_node/camera_node.ino) | AI-Thinker ESP32-CAM | Initializes the OV2640 and joins the rover AP at `192.168.4.2` |
 | [`firmware/camera_node/app_httpd.cpp`](firmware/camera_node/app_httpd.cpp) | ESP32-CAM | Provides `/capture` on port 80 and `/stream` MJPEG on port 81 |
@@ -160,7 +160,7 @@ The Arduino sketches are arranged so each main `.ino` filename matches its conta
 - The sensing node interprets the flame input as active-LOW (`1` means detected). **Verify this polarity against the physical sensor module before relying on the flag.**
 - MPU6050 gyro bias is sampled over 100 startup reads; keep the rover stationary during this approximately one-second calibration.
 - MQ channels are smoothed with a 3-sample moving average. Values remain raw ADC counts.
-- The base station emits one line beginning `AAHARR:` followed by JSON, even when the cloud uplink is unavailable. The dashboard reads that line over USB serial.
+- The base station emits one line beginning `AHARR:` followed by JSON, even when the cloud uplink is unavailable. The dashboard reads that line over USB serial.
 - Google Apps Script responses are checked for `"status":"success"`; an HTTP 200 with an application-level error is no longer reported as a successful write.
 - The base station HTTP timeout is set to 2500 ms. The upload remains synchronous, so a slow request can still delay the next LoRa receive cycle.
 - Drive-node browser control accepts the documented dashboard origins `http://localhost:8000` and `http://127.0.0.1:8000`; requests from other browser origins are rejected and private-network preflight is handled. Requests with no `Origin` header are still allowed for local diagnostics, so this is not authentication; keep the AP password protected.
@@ -220,10 +220,10 @@ The sensing and base-station sketches use the same packed 60-byte `SensorPacket`
 The base station sends a serial line in this format:
 
 ```text
-AAHARR:{"source":1,"destination":2,"packetID":1,"ttl":3,"mq2":...,"mq5":...,"mq9":...,"mq135":...,"fire":0,"distance":...,"temperature":...,"humidity":...,"ax":...,"ay":...,"az":...,"gx":...,"gy":...,"gz":...,"rssi":...,"snr":...}
+AHARR:{"source":1,"destination":2,"packetID":1,"ttl":3,"mq2":...,"mq5":...,"mq9":...,"mq135":...,"fire":0,"distance":...,"temperature":...,"humidity":...,"ax":...,"ay":...,"az":...,"gx":...,"gy":...,"gz":...,"rssi":...,"snr":...}
 ```
 
-The dashboard parser ignores non-`AAHARR:` diagnostic lines and parses the JSON payload after the prefix.
+The dashboard parser ignores non-`AHARR:` diagnostic lines and parses the JSON payload after the prefix.
 
 ## Getting started
 
@@ -406,11 +406,9 @@ The supplied proposal cost-analysis form lists a total estimated budget of **₹
 
 The final capstone report PDF, schematic source project, schematic exports, and raw bench CSV were not present in the files available for this update. The repository does not claim that those missing deliverables have been uploaded.
 
-## Team and acknowledgements
+## Acknowledgements
 
-**Group 11 — Electrical & Instrumentation Engineering, Thapar Institute of Engineering and Technology, Patiala**
-
-Ansh Gupta · Anushka Tiwari · Aryaveer Singh · Vedant
+Developed as a student research prototype in the Electrical & Instrumentation Engineering Department, Thapar Institute of Engineering and Technology, Patiala.
 
 **Supervisor:** Dr. Parag Nijhawan, Electrical & Instrumentation Engineering Department.
 
