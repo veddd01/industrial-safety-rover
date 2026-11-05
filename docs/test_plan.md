@@ -5,8 +5,8 @@ Test results must be recorded only after the corresponding test is performed on 
 | ID | Test | Procedure / acceptance evidence | Result | Date / notes |
 |---|---|---|---|---|
 | T01 | Power rails | Measure regulated 5 V rails on both decks under load; record minimum/maximum voltage | Pending | |
-| T02 | ESP32 input protection | Verify divider ratios on all MQ analog outputs and HC-SR04 ECHO before connection to 3.3 V GPIO | Pending | |
-| T03 | MQ sensor startup | Record warm-up time and stable raw ADC baselines for MQ-2, MQ-5, MQ-9, MQ-135 | Pending | |
+| T02 | ESP32 input protection | Verify measured divider ratios and maximum output voltage on every MQ analog line and HC-SR04 ECHO; confirm no ESP32 input can exceed its permitted voltage | Pending | |
+| T03 | MQ sensor startup / wiring | Record warm-up time and stable raw ADC baselines for MQ-2 (GPIO34), MQ-5 (GPIO35), MQ-9 (GPIO32), and MQ-135 (GPIO33); specifically investigate the prior MQ-9 zero readings | Pending | |
 | T04 | MQ response | Apply controlled test gas under approved lab supervision; record raw counts and recovery behavior | Pending | |
 | T05 | Flame input polarity | Record digital input with no flame and with a controlled flame source; confirm firmware polarity | Pending | |
 | T06 | DHT22 | Compare temperature/humidity readings with a reference instrument | Pending | |
@@ -23,6 +23,8 @@ Test results must be recorded only after the corresponding test is performed on 
 | T17 | Browser focus loss | Move rover, switch browser tab/blur window; confirm dashboard sends stop | Pending | |
 | T18 | Endurance | Record sensing and drive battery endurance separately under documented loads | Pending | |
 | T19 | Enclosed-space radio behavior | Evaluate Wi-Fi and LoRa performance only in an approved test environment; document link losses | Pending | |
+| T20 | Browser-to-drive origin policy | Serve the console from `http://localhost:8000`; confirm drive commands work from that origin and requests from an unrelated web origin are rejected | Pending | |
+| T21 | Cloud upload / receive timing | Record HTTP upload duration and compare expected vs received LoRa packets during repeated Sheet writes | Pending | |
 
 ## Reference bench run (3 November 2026)
 
