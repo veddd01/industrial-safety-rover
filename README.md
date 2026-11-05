@@ -106,6 +106,14 @@ The intended drive-node AP address is `192.168.4.1`. The camera firmware assigns
 
 **Sensor revision note:** the current firmware and telemetry packet use MQ-2, MQ-5, MQ-9, and MQ-135. MQ-7 was marked “not used” in the supplied BOM and appeared in the earlier dashboard mock-up; it is not a live channel in this firmware. The fourth channel is MQ-135.
 
+### Hardware photographs
+
+These compressed photographs show the actual project assemblies supplied for documentation. They are not exterior side/front views of a complete assembled rover.
+
+| Drive assembly | Sensing deck | Gas sensor modules |
+|---|---|---|
+| ![AAHARR drive deck](docs/images/drive_deck.jpg) | ![AAHARR sensing deck](docs/images/sensing_deck.jpg) | ![AAHARR gas sensor modules](docs/images/mq_sensor_modules.jpg) |
+
 ### Drive node pins
 
 | Function | L298N pin | ESP32 GPIO |
@@ -141,7 +149,7 @@ The Arduino sketches are arranged so each main `.ino` filename matches its conta
 |---|---|---|
 | [`firmware/sensing_node/sensing_node.ino`](firmware/sensing_node/sensing_node.ino) | ESP32 sensing node | Reads sensors, applies a 3-sample moving average to MQ channels, estimates gyro zero-rate offsets at startup, and transmits LoRa packets |
 | [`firmware/base_station/base_station.ino`](firmware/base_station/base_station.ino) | ESP32 base station | Receives and validates packets, attaches RSSI / SNR, prints an `AAHARR:` JSON line over USB serial, and posts to Google Apps Script with a 2.5 s HTTP timeout and response-body status check |
-| [`firmware/drive_node/drive_node.ino`](firmware/drive_node/drive_node.ino) | ESP32 drive node | Hosts the rover AP and HTTP movement endpoints; retains the 500 ms command timeout and sends CORS headers for the browser dashboard |
+| [`firmware/drive_node/drive_node.ino`](firmware/drive_node/drive_node.ino) | ESP32 drive node | Hosts the rover AP and HTTP movement endpoints; retains the 500 ms command timeout and restricts browser-origin control to the documented local dashboard origins |
 | [`firmware/camera_node/camera_node.ino`](firmware/camera_node/camera_node.ino) | AI-Thinker ESP32-CAM | Initializes the OV2640 and joins the rover AP at `192.168.4.2` |
 | [`firmware/camera_node/app_httpd.cpp`](firmware/camera_node/app_httpd.cpp) | ESP32-CAM | Provides `/capture` on port 80 and `/stream` MJPEG on port 81 |
 
@@ -155,7 +163,8 @@ The Arduino sketches are arranged so each main `.ino` filename matches its conta
 - The base station emits one line beginning `AAHARR:` followed by JSON, even when the cloud uplink is unavailable. The dashboard reads that line over USB serial.
 - Google Apps Script responses are checked for `"status":"success"`; an HTTP 200 with an application-level error is no longer reported as a successful write.
 - The base station HTTP timeout is set to 2500 ms. The upload remains synchronous, so a slow request can still delay the next LoRa receive cycle.
-- Drive-node HTTP responses include CORS headers for the local browser dashboard. The web console refreshes movement commands while a direction key/button is held so the 500 ms watchdog does not stop a valid held command prematurely.
+- Drive-node browser control accepts the documented dashboard origins `http://localhost:8000` and `http://127.0.0.1:8000`; requests from other browser origins are rejected and private-network preflight is handled. Requests with no `Origin` header are still allowed for local diagnostics, so this is not authentication; keep the AP password protected.
+- The web console refreshes movement commands while a direction key/button is held so the 500 ms watchdog does not stop a valid held command prematurely.
 
 ### Libraries
 
@@ -178,7 +187,7 @@ The live hardware dashboard is [`dashboard/dashboard_live.html`](dashboard/dashb
 - **Ambient / motion:** DHT22 temperature and humidity, HC-SR04 distance, flame input, MPU6050 acceleration and gyroscope, and packet metadata.
 - **Link health:** packet count, mean receive interval, packet age, RSSI, and SNR.
 - **Camera:** MJPEG stream at `http://192.168.4.2:81/stream` (240 × 240).
-- **Teleoperation:** forward / backward / left / right / stop, speed PWM, light toggle, keyboard controls, browser-focus stop, and an emergency-stop command button.
+- **Teleoperation:** forward / backward / left / right / stop, speed PWM, light toggle, keyboard controls, browser-focus stop, and an emergency-stop command button. Serve the page from `http://localhost:8000` or `http://127.0.0.1:8000` for drive controls to pass the drive-node origin allowlist.
 - **Event log / CSV:** only received packets and live threshold / flame events are logged; the browser can export received samples.
 
 The dashboard does not invent battery level, odometry, oxygen, hydrogen sulphide, thermal imaging, or autonomous-navigation metrics because those fields are not available in the current packet or implemented hardware.
