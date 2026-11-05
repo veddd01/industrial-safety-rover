@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="560" viewBox="0 0 1500 560" role="img" aria-labelledby="title desc">
+<title id="title">AHARR industrial safety reconnaissance rover</title>
+<desc id="desc">Stylized four-wheel rover with gas sensing modules, camera, LoRa communication, and an operator console.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071522"/><stop offset=".55" stop-color="#102c43"/><stop offset="1" stop-color="#07111b"/></linearGradient>
+ <linearGradient id="deck" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6ce0ef"/><stop offset="1" stop-color="#167d9a"/></linearGradient>
+ <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9e5ee"/><stop offset="1" stop-color="#607a91"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#6bb8d0" stroke-opacity=".10" stroke-width="1"/></pattern>
+</defs>
+<rect width="1500" height="560" rx="30" fill="url(#bg)"/>
+<rect width="1500" height="560" rx="30" fill="url(#grid)"/>
+<circle cx="890" cy="220" r="230" fill="#1c8ca6" opacity=".08"/>
+<circle cx="300" cy="420" r="190" fill="#2aa4bb" opacity=".06"/>
+<g font-family="Segoe UI,Arial,sans-serif">
+ <text x="76" y="94" fill="#5ee2f0" font-size="17" font-weight="700" letter-spacing="5">AHARR • FIELD ROBOTICS</text>
+ <text x="76" y="166" fill="#f1f7fb" font-size="57" font-weight="800">Atmospheric Hazard</text>
+ <text x="76" y="229" fill="#f1f7fb" font-size="57" font-weight="800">Reconnaissance Rover</text>
+ <text x="80" y="279" fill="#a9c0d1" font-size="20">Remote pre-entry screening for confined industrial spaces</text>
+ <g transform="translate(80 330)">
+  <rect width="188" height="48" rx="24" fill="#103d54" stroke="#2b91a9"/>
+  <circle cx="24" cy="24" r="6" fill="#62d9b0"/><text x="43" y="30" fill="#d9f2f5" font-size="15" font-weight="600">ESP32 sensing</text>
+  <rect x="202" width="155" height="48" rx="24" fill="#103d54" stroke="#2b91a9"/>
+  <circle cx="226" cy="24" r="6" fill="#63cfe9"/><text x="245" y="30" fill="#d9f2f5" font-size="15" font-weight="600">433 MHz LoRa</text>
+  <rect x="371" width="165" height="48" rx="24" fill="#103d54" stroke="#2b91a9"/>
+  <circle cx="395" cy="24" r="6" fill="#ffca70"/><text x="414" y="30" fill="#d9f2f5" font-size="15" font-weight="600">ESP32-CAM</text>
+ </g>
+ <!-- rover wheels -->
+ <g transform="translate(760 340)">
+  <ellipse cx="310" cy="147" rx="340" ry="38" fill="#020810" opacity=".55"/>
+  <g fill="#101c29" stroke="#a6becb" stroke-width="5">
+   <rect x="48" y="72" width="62" height="116" rx="23"/>
+   <rect x="190" y="72" width="62" height="116" rx="23"/>
+   <rect x="374" y="72" width="62" height="116" rx="23"/>
+   <rect x="516" y="72" width="62" height="116" rx="23"/>
+  </g>
+  <g fill="none" stroke="#5d7889" stroke-width="5">
+   <path d="M64 91v78M84 91v78M206 91v78M226 91v78M390 91v78M410 91v78M532 91v78M552 91v78"/>
+  </g>
+  <!-- lower drive deck -->
+  <path d="M65 73L118 32H511L565 73L530 110H100Z" fill="#1b3448" stroke="#7293a7" stroke-width="4"/>
+  <path d="M115 43H515L544 67H89Z" fill="url(#metal)" stroke="#d3e2e9" stroke-width="3"/>
+  <rect x="217" y="53" width="174" height="30" rx="8" fill="#19364c" stroke="#4e7e96"/>
+  <text x="304" y="73" fill="#c4e9f0" font-size="13" text-anchor="middle" font-weight="700">ESP32 DRIVE • L298N</text>
+  <!-- upper sensor deck -->
+  <path d="M114 25L153 -12H478L518 25L491 46H143Z" fill="url(#deck)" stroke="#8bf0f4" stroke-width="3"/>
+  <rect x="199" y="-5" width="72" height="36" rx="7" fill="#0d2739" stroke="#8cecf4" stroke-width="2"/>
+  <rect x="281" y="-5" width="72" height="36" rx="7" fill="#0d2739" stroke="#8cecf4" stroke-width="2"/>
+  <rect x="363" y="-5" width="72" height="36" rx="7" fill="#0d2739" stroke="#8cecf4" stroke-width="2"/>
+  <g fill="#ecad59"><circle cx="218" cy="12" r="8"/><circle cx="300" cy="12" r="8"/><circle cx="382" cy="12" r="8"/></g>
+  <text x="316" y="-24" fill="#d9faff" font-size="14" text-anchor="middle" font-weight="700">GAS + ENVIRONMENTAL SENSING</text>
+  <!-- camera -->
+  <rect x="558" y="29" width="56" height="42" rx="8" fill="#12283a" stroke="#a7d6e3" stroke-width="3"/>
+  <circle cx="586" cy="50" r="13" fill="#07121d" stroke="#62d9eb" stroke-width="4"/>
+  <circle cx="586" cy="50" r="5" fill="#8aeaf4"/>
+  <path d="M584 29L604 5L622 5" fill="none" stroke="#86b2c5" stroke-width="4"/>
+  <text x="648" y="4" fill="#c7e8f2" font-size="13">ESP32-CAM</text>
+  <!-- radio -->
+  <path d="M156 -11L140 -75" stroke="#a9d6e6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M126 -75Q140 -91 154 -75M113 -88Q140 -116 167 -88" fill="none" stroke="#55d9ec" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
+  <text x="97" y="-127" fill="#a9e6ed" font-size="13">LoRa telemetry</text>
+  <!-- headlight -->
+  <rect x="56" y="45" width="18" height="12" rx="4" fill="#ffdc8c" filter="url(#glow)"/>
+ </g>
+ <g transform="translate(1254 360)">
+  <rect x="-15" y="-60" width="190" height="116" rx="12" fill="#10283a" stroke="#6ea1b8" stroke-width="4"/>
+  <rect x="0" y="-45" width="160" height="82" rx="5" fill="#071420" stroke="#2a6077"/>
+  <path d="M12 13L33 -1L51 5L70 -22L92 -9L116 -29L145 -13" fill="none" stroke="#5bd5e8" stroke-width="4"/>
+  <path d="M-1 57H161L180 77H-19Z" fill="#718b9e"/>
+  <g fill="#5bd5e8"><circle cx="18" cy="-27" r="4"/><circle cx="31" cy="-27" r="4"/><circle cx="44" cy="-27" r="4"/></g>
+  <text x="80" y="105" text-anchor="middle" fill="#cce7f0" font-size="14" font-weight="700">OPERATOR CONSOLE</text>
+  <path d="M-40 -4H-78" stroke="#60d8e9" stroke-width="3" stroke-dasharray="6 6"/>
+ </g>
+ <path d="M1215 320Q1160 260 1086 244" fill="none" stroke="#4bd0e0" stroke-width="2" stroke-dasharray="6 7" opacity=".7"/>
+ <text x="1075" y="210" fill="#a8dce7" font-size="13">LIVE TELEMETRY</text>
+</g>
+<text x="76" y="502" fill="#6f899d" font-size="13" letter-spacing="2">TELEOPERATED PROTOTYPE • ESP32 • SX1278 LoRa • GOOGLE SHEETS LOGGING</text>
+</g></svg>
