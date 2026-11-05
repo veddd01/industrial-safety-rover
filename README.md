@@ -402,7 +402,7 @@ The verification checklist is in [`docs/test_plan.md`](docs/test_plan.md). It in
 
 ## Budget and documentation
 
-The supplied proposal cost-analysis form lists a total estimated budget of **₹12,545**. The line-item values and status notes are retained in [`hardware/bom.csv`](hardware/bom.csv). The original cost-analysis document has not been altered. A copy is not included in the public source tree because its signature page contains team roll numbers; publish a redacted copy only if the team approves.
+The supplied proposal cost-analysis form lists a total estimated budget of **₹12,545**. The line-item values and status notes are retained in [`hardware/bom.csv`](hardware/bom.csv). The original cost-analysis document has not been altered. A copy is not included in the public source tree because its signature page contains personal information; publish a redacted copy only with the team's approval.
 
 The final capstone report PDF, schematic source project, schematic exports, and raw bench CSV were not present in the files available for this update. The repository does not claim that those missing deliverables have been uploaded.
 
