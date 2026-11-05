@@ -1,4 +1,4 @@
-// AAHARR camera HTTP server for the AI-Thinker ESP32-CAM.
+// AHARR camera HTTP server for the AI-Thinker ESP32-CAM.
 // MJPEG uses the multipart frame pattern demonstrated by Espressif's camera examples.
 // Retain Espressif source notices if any upstream example code is incorporated.
 #include "esp_http_server.h"
@@ -10,12 +10,12 @@
 
 static httpd_handle_t camera_httpd = nullptr;
 static httpd_handle_t stream_httpd = nullptr;
-static const char* BOUNDARY = "aaHarrFrameBoundary";
+static const char* BOUNDARY = "aharrFrameBoundary";
 
 static esp_err_t root_handler(httpd_req_t* req) {
   httpd_resp_set_type(req, "text/plain; charset=utf-8");
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-  const char* message = "AAHARR ESP32-CAM online. MJPEG: port 81 /stream; still: port 80 /capture";
+  const char* message = "AHARR ESP32-CAM online. MJPEG: port 81 /stream; still: port 80 /capture";
   return httpd_resp_send(req, message, HTTPD_RESP_USE_STRLEN);
 }
 
@@ -45,7 +45,7 @@ static esp_err_t capture_handler(httpd_req_t* req) {
 }
 
 static esp_err_t stream_handler(httpd_req_t* req) {
-  httpd_resp_set_type(req, "multipart/x-mixed-replace;boundary=aaHarrFrameBoundary");
+  httpd_resp_set_type(req, "multipart/x-mixed-replace;boundary=aharrFrameBoundary");
   httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
   httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
 
