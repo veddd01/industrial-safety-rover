@@ -138,7 +138,7 @@ float readDistanceCm() {
 void setup() {
   Serial.begin(115200);
   delay(1500);
-  Serial.println("\nAAHARR sensing node");
+  Serial.println("\nAHARR sensing node");
 
   pinMode(MQ2_PIN, INPUT);
   pinMode(MQ5_PIN, INPUT);
