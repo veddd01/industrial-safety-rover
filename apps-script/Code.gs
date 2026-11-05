@@ -19,7 +19,7 @@ function doPost(e) {
 }
 
 function doGet() {
-  return ContentService.createTextOutput("Rover Google Sheets API is running");
+  return ContentService.createTextOutput("AHARR Google Sheets API is running");
 }
 
 function json(obj) {
