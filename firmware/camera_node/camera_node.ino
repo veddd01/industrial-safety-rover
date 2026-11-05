@@ -10,7 +10,7 @@ void startCameraServer();
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
-  Serial.println("\nAAHARR ESP32-CAM boot");
+  Serial.println("\nAHARR ESP32-CAM boot");
 
   camera_config_t config = {};
   config.ledc_channel = LEDC_CHANNEL_0;
