@@ -230,7 +230,7 @@ The dashboard parser ignores non-`AAHARR:` diagnostic lines and parses the JSON 
 ### 1. Prerequisites
 
 - Arduino IDE 2.x or PlatformIO with the ESP32 board package.
-- Node.js only if you also want to run the separate React/Vite prototype in the repository root.
+- Node.js only if you also want to run the separate React/Vite UI prototype in the repository root. That React app uses sample data; the live hardware console is `dashboard/dashboard_live.html`.
 - Chrome or Edge with Web Serial API support for the live dashboard.
 - A Google Sheet and Google Apps Script deployment if cloud logging is required.
 - Correct antennas on both Ra-02 modules and correctly rated power / voltage interfaces.
@@ -249,7 +249,7 @@ For each folder, copy `secrets.example.h` to `secrets.h` and fill in the new loc
 - Drive node: rover AP SSID and a new strong rover AP password.
 - Camera node: the same rover AP SSID / password as the drive node.
 
-The old source archive contained hard-coded credentials and an Apps Script URL. Rotate the rover AP and hotspot passwords and redeploy Apps Script before using the updated firmware. I removed those values from the committed source and replaced them with local secrets, but I cannot change your phone hotspot settings or deploy a Google Apps Script on your behalf.
+The earlier firmware source archive contained hard-coded credentials and an Apps Script URL. The currently committed sketches read credentials from ignored local `secrets.h` files, and the tracked `secrets.example.h` files contain placeholders only. Rotate any credentials that may have been shared and redeploy Apps Script before using the updated firmware. I cannot change your phone hotspot settings or deploy an Apps Script on your behalf.
 
 ### 3. Deploy Google Apps Script (optional cloud logging)
 
