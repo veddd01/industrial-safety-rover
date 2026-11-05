@@ -1,15 +1,7 @@
 cff-version: 1.2.0
-title: "AAHARR: Advanced Autonomous Hazard and Reconnaissance Rover"
+title: "AHARR: Atmospheric Hazard and Reconnaissance Rover"
 message: "If you use this project, please cite it as below."
 type: software
-authors:
-  - given-names: Ansh
-    family-names: Gupta
-  - given-names: Anushka
-    family-names: Tiwari
-  - given-names: Aryaveer
-    family-names: Singh
-  - given-names: Vedant
 date-released: 2026-11-05
 repository-code: "https://github.com/veddd01/industrial-safety-rover"
 keywords:
