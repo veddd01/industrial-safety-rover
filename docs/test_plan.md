@@ -1,4 +1,4 @@
-# AAHARR Hardware and Integration Test Plan
+# AHARR Hardware and Integration Test Plan
 
 Test results must be recorded only after the corresponding test is performed on the physical prototype. Run gas-response tests only in a controlled, approved test setup; never use this rover to certify a confined space as safe.
 
@@ -15,7 +15,7 @@ Test results must be recorded only after the corresponding test is performed on 
 | T09 | LoRa packet integrity | Run both LoRa nodes at the selected compliant frequency/power; record received/expected packets, interval, RSSI and SNR | Pending | |
 | T10 | LoRa antenna setup | Verify antennas are connected and suitable for the selected frequency before range testing | Pending | |
 | T11 | Google Sheets logging | Verify Apps Script response JSON reports `status: success` and row appears in Sheet1 | Pending | |
-| T12 | USB dashboard telemetry | Connect Node 2 at 115200 baud; confirm each `AAHARR:` JSON line updates the matching fields | Pending | |
+| T12 | USB dashboard telemetry | Connect Node 2 at 115200 baud; confirm each `AHARR:` JSON line updates the matching fields | Pending | |
 | T13 | No-packet indication | Stop the sensing node; confirm the dashboard marks telemetry stale after 15 seconds | Pending | |
 | T14 | Camera stream | Join ESP32-CAM to `ESP32_CAR`; verify MJPEG at `http://192.168.4.2:81/stream` | Pending | |
 | T15 | Drive controls | Verify forward/reverse/left/right/stop and keyboard commands at safe low speed | Pending | |
