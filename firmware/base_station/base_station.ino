@@ -85,8 +85,8 @@ void sendToGoogleSheets(SensorPacket &packet, int rssi, float snr) {
   json += "\"snr\":" + String(snr, 2);
   json += "}";
 
-  // Web Serial dashboard consumes one JSON object per AAHARR-prefixed line.
-  Serial.print("AAHARR:");
+  // Web Serial dashboard consumes one JSON object per AHARR-prefixed line.
+  Serial.print("AHARR:");
   Serial.println(json);
 
   if (WiFi.status() != WL_CONNECTED) {
@@ -128,7 +128,7 @@ void setup() {
   delay(2000);
   Serial.println();
   Serial.println("======================================");
-  Serial.println("     AAHARR NODE 2 - BASE STATION");
+  Serial.println("     AHARR NODE 2 - BASE STATION");
   Serial.println("======================================");
 
   SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
