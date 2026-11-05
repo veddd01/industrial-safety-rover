@@ -113,7 +113,7 @@ void setup() {
 
   server.on("/", HTTP_GET, []() {
     if (rejectUntrustedOrigin()) return;
-    sendText(200, "AAHARR drive node online");
+    sendText(200, "AHARR drive node online");
   });
   server.on("/forward", HTTP_GET, []() {
     if (rejectUntrustedOrigin()) return;
