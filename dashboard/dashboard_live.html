@@ -16,7 +16,7 @@
 <section class="panel"><div class="head"><div><div class="tag">Environmental + motion telemetry</div><h2>Ambient Conditions & Sensor Status</h2></div><span class="fire" id="fire">FLAME: NO DATA</span></div>
 <div class="metrics"><div class="metric"><label>Temperature</label><b id="temp">—</b></div><div class="metric"><label>Humidity</label><b id="humidity">—</b></div><div class="metric"><label>Distance</label><b id="distance">—</b></div><div class="metric"><label>Packet ID</label><b id="packetId">—</b></div></div>
 <div class="metrics" style="margin-top:9px;grid-template-columns:repeat(2,minmax(0,1fr))"><div class="metric"><label>LoRa RSSI</label><b id="rssi">—</b></div><div class="metric"><label>LoRa SNR</label><b id="snr">—</b></div></div><p class="sub" id="imu">IMU: waiting for MPU6050 telemetry • Acceleration (g) / Angular rate (°/s)</p></section>
-<section class="panel"><div class="head"><div><div class="tag">Live sample history</div><h2>Gas Channel Trend</h2></div><div class="chips"><span class="status">LAST 30 PACKETS</span><button id="export">Export CSV</button></div></div><div class="chart"><canvas id="plot"></canvas></div><p class="sub">Only packets received in this browser session are plotted. All traces show raw counts.</p></section>
+<section class="panel"><div class="head"><div><div class="tag">Live sample history</div><h2>Gas Channel Trend</h2></div><div class="chips"><span class="status">LAST 30 PACKETS</span><button id="export">Export CSV</button></div></div><div class="chart"><canvas id="plot"></canvas></div><p class="sub">Only packets received in this browser session are plotted. Traces show raw counts; dashed lines mark each channel's prototype reference threshold, not a certified alarm limit.</p></section>
 <section class="panel"><div class="head"><div><div class="tag">Base-station events</div><h2>Telemetry Event Log</h2></div><button id="clear">Clear log</button></div><div id="logs" class="logs"><div class="empty">No telemetry received yet. Connect Node 2 over USB serial.</div></div></section>
 </main><aside class="stack">
 <section class="panel"><div class="head"><div><div class="tag">ESP32-CAM • OV2640</div><h2>Live Video Feed</h2></div><span id="camState" class="status">STOPPED</span></div><div class="video"><img id="cam" alt="ESP32-CAM MJPEG stream"><div id="camPlaceholder" class="placeholder"><b>Camera stream stopped</b>Join the laptop to the rover access point, then start the feed.</div></div><div class="drivefoot" style="margin-top:10px"><span class="sub">192.168.4.2:81 • 240 × 240 JPEG</span><div class="chips"><button id="startCam" class="primary">Start Feed</button><button id="stopCam" disabled>Stop Feed</button></div></div></section>
@@ -39,11 +39,13 @@ function draw(){
  canvas.width=Math.max(1,r.width*d);canvas.height=Math.max(1,r.height*d);ctx.scale(d,d);
  var w=r.width,h=r.height,L=34,R=8,T=8,B=22,pw=w-L-R,ph=h-T-B;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#263b50';ctx.fillStyle='#91a4b8';ctx.font='9px monospace';
  for(var j=0;j<=4;j++){var y=T+ph*j/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillText(String(Math.round(4095*(1-j/4))),2,y+3);}
+ // Each channel gets its own dashed reference line; these are prototype markers, not safety limits.
+ channels.forEach(function(ch){var y=T+ph-(ch[2]/4095)*ph;ctx.save();ctx.strokeStyle=ch[3];ctx.globalAlpha=.6;ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.restore();});
  channels.forEach(function(ch){ctx.strokeStyle=ch[3];ctx.lineWidth=1.7;ctx.beginPath();var started=false;history.forEach(function(s,i){var v=s[ch[0]];if(v===null)return;var x=L+(history.length<2?0:i/(history.length-1)*pw),yy=T+ph-Math.max(0,Math.min(4095,v))/4095*ph;if(!started){ctx.moveTo(x,yy);started=true;}else ctx.lineTo(x,yy);});if(started)ctx.stroke();});
  var x=L;channels.forEach(function(ch){ctx.fillStyle=ch[3];ctx.fillRect(x,h-11,8,3);ctx.fillStyle='#91a4b8';ctx.fillText(ch[1],x+11,h-7);x+=pw/4;});
 }
 function render(data){
- var now=Date.now();if(last)intervals.push(now-last);last=now;count++;
+ var now=Date.now();if(last){intervals.push(now-last);if(intervals.length>30)intervals.shift();}last=now;count++;
  el('age').textContent='0 s';el('packetCount').textContent=count+' PACKETS';el('total').textContent=count;el('packetId').textContent=data.packetID==null?'—':data.packetID;
  el('temp').textContent=data.temperature===-99?'—':fmt(data.temperature)+' °C';el('humidity').textContent=data.humidity===-99?'—':fmt(data.humidity,0)+' %';el('distance').textContent=Number(data.distance)<0?'—':fmt(data.distance)+' cm';
  el('rssi').textContent=data.rssi==null?'—':fmt(data.rssi,0)+' dBm';el('snr').textContent=data.snr==null?'—':fmt(data.snr)+' dB';
